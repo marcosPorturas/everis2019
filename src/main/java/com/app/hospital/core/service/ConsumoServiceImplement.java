@@ -63,4 +63,14 @@ public class ConsumoServiceImplement implements ConsumoService{
 		return lstConsumoResponse;
 	}
 
+
+	@Override
+	public void deleteConsumo(Integer idIngreso, Integer idProducto) {
+		// TODO Auto-generated method stub
+		ProductoHasIngresoPK pk = new ProductoHasIngresoPK();
+		pk.setIdingreso(idIngreso);
+		pk.setIdproducto(idProducto);
+		consumoRepository.deleteById(pk);
+	}
+
 }
