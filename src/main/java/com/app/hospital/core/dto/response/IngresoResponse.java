@@ -1,6 +1,7 @@
 package com.app.hospital.core.dto.response;
 
 import java.util.Date;
+import java.util.List;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -16,5 +17,7 @@ public class IngresoResponse {
 	private Integer numInvitado;
 	private Double costIngreso;
 	private String estado;
+	
+	private List<ConsumoResponse> consumos;
 
 }

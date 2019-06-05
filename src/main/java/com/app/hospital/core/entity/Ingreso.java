@@ -6,6 +6,7 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.PrePersist;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
@@ -19,11 +20,18 @@ public class Ingreso {
 	
 	@Id
 	private Integer idingreso;
+	
 	@Temporal(TemporalType.DATE)
 	private Date fech_ingreso;
+	
 	private String hora_ingreso;
 	private int numinvitado;
-	private int costoingreso=25;
+	private Double costoingreso=25.00;
+	
+	@PrePersist
+	public void setearFecha() {
+		fech_ingreso = new Date();
+	}
 	
 	@ManyToOne
 	@JoinColumn(name="idestado")

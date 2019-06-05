@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import com.app.hospital.core.dto.request.IngresoRequest;
 import com.app.hospital.core.dto.response.IngresoResponse;
 import com.app.hospital.core.entity.EstIngreso;
+import com.app.hospital.core.entity.EstSocio;
 import com.app.hospital.core.entity.Ingreso;
 import com.app.hospital.core.entity.Socio;
 import com.app.hospital.core.reposiroty.IngresoRepository;
@@ -19,6 +20,9 @@ import com.app.hospital.core.util.Utilitario;
 @Service
 public class IngresoServiceImplement implements IngresoService{
 
+	@Autowired
+	ConsumoService consumoService;
+	
 	@Autowired
 	IngresoRepository ingresoRepository;
 	
@@ -31,13 +35,26 @@ public class IngresoServiceImplement implements IngresoService{
 		// TODO Auto-generated method stub
 		Ingreso ingreso = new Ingreso();
 		ingreso.setIdingreso(generatedIdIngreso());
-		ingreso.setFech_ingreso(Utilitario.getActualDate());
 		ingreso.setHora_ingreso(Utilitario.getActualTime());
-		ingreso.setCostoingreso(25);
+		ingreso.setCostoingreso(25.00);
 		ingreso.setNuminvitado(ingresoRequest.getNumInvitado());
-		EstIngreso estado = new EstIngreso();
-		estado.setIdestado(ingresoRequest.getEstado());
-		ingreso.setEstado(estado);
+		
+		EstSocio estSocio = new EstSocio();
+		estSocio.setIdestado(2);
+		
+		Socio socio = socioRepository.findById(ingresoRequest.getIdSocio()).get();
+		socio.setEstado(estSocio);
+		
+		EstIngreso estIngreso = new EstIngreso();
+		estIngreso.setIdestado(0);
+		
+		ingreso.setSocio(socio);
+		ingreso.setEstado(estIngreso);
+		
+		ingresoRepository.save(ingreso);
+		socioRepository.save(socio);
+		
+		
 		return ingreso;
 	}
 
@@ -67,6 +84,23 @@ public class IngresoServiceImplement implements IngresoService{
 	      idingreso=ingresoRepository.findLastIdIngreso();
 	      if(idingreso==null)idingreso=40000;
 	      return idingreso+1;
+	}
+
+	@Override
+	public IngresoResponse findIngreso(Integer idIngreso) {
+		// TODO Auto-generated method stub
+		IngresoResponse ingresoResponse = new IngresoResponse();
+		Ingreso ingreso = ingresoRepository.findById(idIngreso).get();
+		Socio socio = socioRepository.findById(ingreso.getSocio().getIdsocio()).get();
+		ingresoResponse.setIdIngreso(ingreso.getIdingreso());
+		ingresoResponse.setSocio(socio.getNombre()+", "+socio.getApellido());
+		ingresoResponse.setFechIngreso(ingreso.getFech_ingreso());
+		ingresoResponse.setHoraIngreso(ingreso.getHora_ingreso());
+		ingresoResponse.setNumInvitado(ingreso.getNuminvitado());
+		ingresoResponse.setCostIngreso(ingreso.getCostoingreso());
+		ingresoResponse.setEstado(ingreso.getEstado().getNombre());
+		ingresoResponse.setConsumos(consumoService.allConsumoByIngreso(ingreso.getIdingreso()));
+		return ingresoResponse;
 	}
 
 	
