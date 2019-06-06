@@ -1,5 +1,7 @@
 package com.app.hospital.core.controller;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -29,6 +31,16 @@ public class HospedajeController {
 	@GetMapping("/{idhospedaje}")
 	public HospedajeResponse findHospedaje(@PathVariable("idhospedaje")Integer idhospedaje) {
 		return hospedajeService.findHospedaje(idhospedaje);
+	}
+	
+	@GetMapping("/pendientes")
+	public List<HospedajeResponse> findHospedajePendiente() {
+		return hospedajeService.allHospedajeByEstado(0);
+	}
+	
+	@GetMapping("/pagados")
+	public List<HospedajeResponse> findHospedajePagado() {
+		return hospedajeService.allHospedajeByEstado(1);
 	}
 
 }

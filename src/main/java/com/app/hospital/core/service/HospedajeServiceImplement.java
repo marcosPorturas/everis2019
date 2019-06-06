@@ -1,5 +1,9 @@
 package com.app.hospital.core.service;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -78,16 +82,46 @@ public class HospedajeServiceImplement implements HospedajeService{
 		// TODO Auto-generated method stub
 		HospedajeResponse hospedajeResp = new HospedajeResponse();
 		Hospedaje hospedaje = hospedajeRepository.findById(idHospedaje).get();
+		Socio socio = socioRepository.findById(hospedaje.getIngreso().getSocio().getIdsocio()).get();
+		
 		hospedajeResp.setIdHospedaje(hospedaje.getIdhospedaje());
-		hospedajeResp.setFechSalida(hospedaje.getFech_salida());
-		hospedajeResp.setHoraSalida(hospedaje.getHora_salida());
+		hospedajeResp.setSocio(socio.getApellido()+", "+socio.getNombre());
 		hospedajeResp.setIdBungalow(hospedaje.getBungalow().getIdbungalow());
 		hospedajeResp.setIdIngreso(hospedaje.getIngreso().getIdingreso());
-		hospedajeResp.setCostoTotal(hospedaje.getCostohospedaje());
-		hospedajeResp.setEstado(hospedaje.getEstado().getNombre());
-		return hospedajeResp;
+		hospedajeResp.setFechSalida(hospedaje.getFech_salida());
+		hospedajeResp.setFechIngreso(hospedaje.getIngreso().getFech_ingreso());
+		hospedajeResp.setCostoHospedaje(hospedaje.getCostohospedaje());
+		return hospedajeResp; 
+	}
+
+
+	@Override
+	public List<HospedajeResponse> allHospedajeByEstado(Integer idEstado) {
+		// TODO Auto-generated method stub
+		List<HospedajeResponse> lstHospedaje = new ArrayList<HospedajeResponse>();
+		for (Hospedaje hospedaje: hospedajeRepository.findAllByEstadoIdestado(idEstado)) {
+			Socio socio = socioRepository.findById(hospedaje.getIngreso().getSocio().getIdsocio()).get();
+			HospedajeResponse hospedajeResp = new HospedajeResponse();
+			hospedajeResp.setIdHospedaje(hospedaje.getIdhospedaje());
+			hospedajeResp.setIdBungalow(hospedaje.getBungalow().getIdbungalow());
+			hospedajeResp.setSocio(socio.getApellido()+", "+socio.getNombre());
+			hospedajeResp.setIdIngreso(hospedaje.getIngreso().getIdingreso());
+			hospedajeResp.setFechIngreso(hospedaje.getIngreso().getFech_ingreso());
+			if(idEstado == 0) {
+				hospedajeResp.setFechSalida(new Date());
+				Integer dias = (int) ((hospedajeResp.getFechSalida().getTime()-hospedajeResp.getFechIngreso().getTime())/86400000);
+				Double costo = hospedaje.getBungalow().getPrecio();
+				hospedajeResp.setCostoHospedaje(dias*costo);			
+			}else {
+				hospedajeResp.setFechSalida(hospedaje.getFech_salida());
+				hospedajeResp.setCostoHospedaje(hospedaje.getCostohospedaje());
+			}		
+			lstHospedaje.add(hospedajeResp);
+		}	
+		return lstHospedaje;
 	}
 
 	
 	
 }
+	

@@ -16,12 +16,8 @@ public class IngresoResponse {
 	private String horaIngreso;
 	private Integer numInvitado;
 	private Double costIngreso;
-	private String estado;
 	
 	private List<ConsumoResponse> consumos;
 	
-	private Double totalInvitado;
-	private Double totalConsumo;
-	private Double totalPagar;
 
 }

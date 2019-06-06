@@ -32,6 +32,16 @@ public class IngresoController {
 		return ingresoService.findIngreso(idIngreso);
 	}
 	
+	@GetMapping("/pagados")
+	public List<IngresoResponse> findIngresoPagados() {
+		return ingresoService.allIngresoByEstado(1);
+	}
+	
+	@GetMapping("/pendientes")
+	public List<IngresoResponse> findIngresoPemdientes() {
+		return ingresoService.allIngresoByEstado(0);
+	}
+	
 	@PostMapping
 	public void addIngreso(@RequestBody IngresoRequest ingresoRequest) {
 		ingresoService.addIngreso(ingresoRequest);

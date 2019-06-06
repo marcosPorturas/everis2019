@@ -2,6 +2,11 @@ package com.app.hospital.core.dto.response;
 
 import java.util.Date;
 
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+
+import org.springframework.format.annotation.DateTimeFormat;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -11,10 +16,12 @@ public class HospedajeResponse {
 
 	private Integer idHospedaje;
 	private Integer idBungalow;
+	private String socio;
 	private Integer idIngreso;
+	@Temporal(TemporalType.DATE)
+	private Date fechIngreso;
 	private Date fechSalida;
-	private String horaSalida;
-	private Double costoTotal;
-	private String estado;
+	private Double costoHospedaje;
+
 	
 }

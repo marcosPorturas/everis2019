@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.app.hospital.core.dto.request.IngresoRequest;
-import com.app.hospital.core.dto.response.ConsumoResponse;
 import com.app.hospital.core.dto.response.IngresoResponse;
 import com.app.hospital.core.entity.EstIngreso;
 import com.app.hospital.core.entity.EstSocio;
@@ -72,7 +71,6 @@ public class IngresoServiceImplement implements IngresoService{
 			ingresoResp.setHoraIngreso(ingreso.getHora_ingreso());
 			ingresoResp.setNumInvitado(ingreso.getNuminvitado());
 			ingresoResp.setCostIngreso(25.00);
-			ingresoResp.setEstado(ingreso.getEstado().getNombre());
 			listIngreso.add(ingresoResp);
 		}
 		return listIngreso;
@@ -90,9 +88,6 @@ public class IngresoServiceImplement implements IngresoService{
 	@Override
 	public IngresoResponse findIngreso(Integer idIngreso) {
 		// TODO Auto-generated method stub
-		Double costoTotal=0.0;
-		Double costoConsumo=0.0;
-		Double costoInvitado=0.0;
 		
 		IngresoResponse ingresoResponse = new IngresoResponse();
 		Ingreso ingreso = ingresoRepository.findById(idIngreso).get();
@@ -103,18 +98,28 @@ public class IngresoServiceImplement implements IngresoService{
 		ingresoResponse.setHoraIngreso(ingreso.getHora_ingreso());
 		ingresoResponse.setNumInvitado(ingreso.getNuminvitado());
 		ingresoResponse.setCostIngreso(ingreso.getCostoingreso());
-		ingresoResponse.setEstado(ingreso.getEstado().getNombre());
 		ingresoResponse.setConsumos(consumoService.allConsumoByIngreso(ingreso.getIdingreso()));
-		for(ConsumoResponse consumoResp:consumoService.allConsumoByIngreso(ingreso.getIdingreso())) {
-			costoConsumo = (consumoResp.getCantidad()*consumoResp.getPrecio()) + costoConsumo;
-		}
-		costoInvitado = 25.00*ingreso.getNuminvitado();
-		costoTotal = costoConsumo + costoInvitado;
 		
-		ingresoResponse.setTotalConsumo(costoConsumo);
-		ingresoResponse.setTotalInvitado(costoInvitado);
-		ingresoResponse.setTotalPagar(costoTotal);
 		return ingresoResponse;
+	}
+
+	@Override
+	public List<IngresoResponse> allIngresoByEstado(Integer idIngreso) {
+		// TODO Auto-generated method stub
+		List<IngresoResponse> listIngreso = new ArrayList<IngresoResponse>();
+		for(Ingreso ingreso : ingresoRepository.findAllByEstadoIdestado(idIngreso)) {
+			Socio socio = socioRepository.findById(ingreso.getSocio().getIdsocio()).get();
+			IngresoResponse ingresoResp = new IngresoResponse();
+			ingresoResp.setIdIngreso(ingreso.getIdingreso());
+			ingresoResp.setSocio(socio.getNombre()+", "+socio.getApellido());
+			ingresoResp.setFechIngreso(ingreso.getFech_ingreso());
+			ingresoResp.setHoraIngreso(ingreso.getHora_ingreso());
+			ingresoResp.setNumInvitado(ingreso.getNuminvitado());
+			ingresoResp.setCostIngreso(25.00);
+			ingresoResp.setConsumos(consumoService.allConsumoByIngreso(ingreso.getIdingreso()));
+			listIngreso.add(ingresoResp);
+		}
+		return listIngreso;
 	}
 
 	
