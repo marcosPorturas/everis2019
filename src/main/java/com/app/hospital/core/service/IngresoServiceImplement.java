@@ -47,13 +47,11 @@ public class IngresoServiceImplement implements IngresoService{
 		
 		EstIngreso estIngreso = new EstIngreso();
 		estIngreso.setIdestado(0);
-		
-		ingreso.setSocio(socio);
 		ingreso.setEstado(estIngreso);
+		ingreso.setSocio(socio);
 		
 		ingresoRepository.save(ingreso);
 		socioRepository.save(socio);
-		
 		
 		return ingreso;
 	}
@@ -120,6 +118,16 @@ public class IngresoServiceImplement implements IngresoService{
 			listIngreso.add(ingresoResp);
 		}
 		return listIngreso;
+	}
+
+	@Override
+	public void pagarIngreso(Integer idIngreso) {
+		// TODO Auto-generated method stub
+		Ingreso ingreso = ingresoRepository.findById(idIngreso).get();
+		EstIngreso estIngreso = new EstIngreso();
+		estIngreso.setIdestado(1);
+		ingreso.setEstado(estIngreso);
+		ingresoRepository.save(ingreso);
 	}
 
 	

@@ -121,6 +121,26 @@ public class HospedajeServiceImplement implements HospedajeService{
 		return lstHospedaje;
 	}
 
+
+	@Override
+	public void pagarHospedaje(Integer idHospedaje) {
+		// TODO Auto-generated method stub
+		Hospedaje hospedaje = hospedajeRepository.findById(idHospedaje).get();
+		Socio socio = socioRepository.findById(hospedaje.getIngreso().getSocio().getIdsocio()).get();
+		
+		EstSocio estSocio =  new EstSocio();
+		estSocio.setIdestado(0);
+		socio.setEstado(estSocio);
+		socioRepository.save(socio);
+		
+		EstHospedaje estHospedaje = new EstHospedaje();
+		estHospedaje.setIdestado(1);
+		hospedaje.setEstado(estHospedaje);
+		
+		hospedajeRepository.save(hospedaje);
+		
+	}
+
 	
 	
 }

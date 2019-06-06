@@ -8,9 +8,11 @@ import com.app.hospital.core.entity.Ingreso;
 
 public interface IngresoService {
 	
+	Integer generatedIdIngreso();
 	Ingreso addIngreso(IngresoRequest ingresoRequest);
 	IngresoResponse findIngreso(Integer idIngreso);
+	void pagarIngreso(Integer idIngreso);
 	List<IngresoResponse> allIngreso();
 	List<IngresoResponse> allIngresoByEstado(Integer idIngreso);
-	Integer generatedIdIngreso();
+	
 }

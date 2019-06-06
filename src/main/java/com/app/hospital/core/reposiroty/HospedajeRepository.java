@@ -14,4 +14,5 @@ public interface HospedajeRepository extends JpaRepository<Hospedaje, Integer>{
 	
 	List<Hospedaje> findAllByEstadoIdestado(Integer idEstado);
 	
+	Hospedaje findByIngresoIdingreso(Integer idIngreso);
 }
