@@ -8,6 +8,6 @@ import com.app.hospital.core.entity.Bungalow;
 public interface BungalowRepository extends JpaRepository<Bungalow, Integer>{
 
 	@Query("Select max(a.idbungalow) from Bungalow a")
-	  Integer findLastIdBungalow();
+	Integer findLastIdBungalow();
 	
 }

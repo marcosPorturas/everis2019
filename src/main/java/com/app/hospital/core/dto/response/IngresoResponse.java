@@ -19,5 +19,9 @@ public class IngresoResponse {
 	private String estado;
 	
 	private List<ConsumoResponse> consumos;
+	
+	private Double totalInvitado;
+	private Double totalConsumo;
+	private Double totalPagar;
 
 }

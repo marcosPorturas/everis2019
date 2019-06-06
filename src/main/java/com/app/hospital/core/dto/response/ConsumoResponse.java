@@ -11,4 +11,6 @@ public class ConsumoResponse {
 	private Integer idProducto;
 	private Integer cantidad;
 	private Double precio;
+	private Double subTotal;
+	
 }

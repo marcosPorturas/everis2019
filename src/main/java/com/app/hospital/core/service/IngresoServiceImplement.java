@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.app.hospital.core.dto.request.IngresoRequest;
+import com.app.hospital.core.dto.response.ConsumoResponse;
 import com.app.hospital.core.dto.response.IngresoResponse;
 import com.app.hospital.core.entity.EstIngreso;
 import com.app.hospital.core.entity.EstSocio;
@@ -89,6 +90,10 @@ public class IngresoServiceImplement implements IngresoService{
 	@Override
 	public IngresoResponse findIngreso(Integer idIngreso) {
 		// TODO Auto-generated method stub
+		Double costoTotal=0.0;
+		Double costoConsumo=0.0;
+		Double costoInvitado=0.0;
+		
 		IngresoResponse ingresoResponse = new IngresoResponse();
 		Ingreso ingreso = ingresoRepository.findById(idIngreso).get();
 		Socio socio = socioRepository.findById(ingreso.getSocio().getIdsocio()).get();
@@ -100,6 +105,15 @@ public class IngresoServiceImplement implements IngresoService{
 		ingresoResponse.setCostIngreso(ingreso.getCostoingreso());
 		ingresoResponse.setEstado(ingreso.getEstado().getNombre());
 		ingresoResponse.setConsumos(consumoService.allConsumoByIngreso(ingreso.getIdingreso()));
+		for(ConsumoResponse consumoResp:consumoService.allConsumoByIngreso(ingreso.getIdingreso())) {
+			costoConsumo = (consumoResp.getCantidad()*consumoResp.getPrecio()) + costoConsumo;
+		}
+		costoInvitado = 25.00*ingreso.getNuminvitado();
+		costoTotal = costoConsumo + costoInvitado;
+		
+		ingresoResponse.setTotalConsumo(costoConsumo);
+		ingresoResponse.setTotalInvitado(costoInvitado);
+		ingresoResponse.setTotalPagar(costoTotal);
 		return ingresoResponse;
 	}
 

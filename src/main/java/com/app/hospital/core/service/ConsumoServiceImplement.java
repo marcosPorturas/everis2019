@@ -58,6 +58,7 @@ public class ConsumoServiceImplement implements ConsumoService{
 			consumoResponse.setIdProducto(consumo.getPk().getIdproducto());
 			consumoResponse.setCantidad(consumo.getCantidad());
 			consumoResponse.setPrecio(consumo.getPrecio_venta());
+			consumoResponse.setSubTotal(Math.round((consumo.getPrecio_venta()*consumo.getCantidad())* 100) / 100d);
 			lstConsumoResponse.add(consumoResponse);
 		}
 		return lstConsumoResponse;
