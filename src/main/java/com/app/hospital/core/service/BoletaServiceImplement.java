@@ -107,7 +107,7 @@ public class BoletaServiceImplement implements BoletaService{
 		}
 		return sumaTotal;
 	}
-
+ 
 	@Override
 	public double calculoHospedajeBoleta(Integer idIngreso) {
 		// TODO Auto-generated method stub
