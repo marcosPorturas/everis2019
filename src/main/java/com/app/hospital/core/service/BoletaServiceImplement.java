@@ -50,21 +50,18 @@ public class BoletaServiceImplement implements BoletaService{
 		String msj="";
 		MessageResponse messageResponse = new MessageResponse();
 		try {
-			//Siempre se debe verificar que
-			//el ingreso este pagado
+
 			if(verificarIngreso(idIngreso)) {
 				Hospedaje hospedaje = hospedajeRepository.findByIngresoIdingreso(idIngreso);
 				if(hospedaje == null) {
-					//generar boleta pues no hay hospedaje
+
 					numIngreso = idIngreso;
 					msj = "Generar Boleta, solo hay ingreso que se Pago";
 				}else {
 					if(hospedaje.getEstado().getIdestado()==1) {
-						//generar boleta porque pago hospedaje e ingreso
 						numIngreso = idIngreso;
 						msj = "Generar Boleta, se pago ingreso y hospedaje";
 					}else {
-						//No generar Boleta hasta pagar el hostedaje
 						numIngreso = idIngreso;
 						msj = "No Generar Boleta, el hospedaje no se pago";
 					}

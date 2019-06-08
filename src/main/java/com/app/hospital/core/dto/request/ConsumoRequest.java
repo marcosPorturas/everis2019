@@ -11,5 +11,4 @@ public class ConsumoRequest {
 	private Integer idProducto;
 	private Integer cantidad;
 	
-	 
 }
