@@ -7,16 +7,18 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-
+import com.app.hospital.core.dto.response.BoletaDetalladaResponse;
+import com.app.hospital.core.dto.response.BoletaResponse;
+import com.app.hospital.core.dto.response.ConsumoResponse;
+import com.app.hospital.core.dto.response.HospedajeBoletaResponse;
+import com.app.hospital.core.dto.response.IngresoBoletaResponse;
 import com.app.hospital.core.dto.response.MessageResponse;
-import com.app.hospital.core.entity.Bungalow;
+import com.app.hospital.core.entity.Boleta;
 import com.app.hospital.core.entity.Consumo;
-import com.app.hospital.core.entity.EstBungalow;
-import com.app.hospital.core.entity.EstHospedaje;
-import com.app.hospital.core.entity.EstSocio;
 import com.app.hospital.core.entity.Hospedaje;
 import com.app.hospital.core.entity.Ingreso;
 import com.app.hospital.core.entity.Socio;
+import com.app.hospital.core.reposiroty.BoletaRepository;
 import com.app.hospital.core.reposiroty.BungalowRepository;
 import com.app.hospital.core.reposiroty.ConsumoRepository;
 import com.app.hospital.core.reposiroty.HospedajeRepository;
@@ -42,13 +44,24 @@ public class BoletaServiceImplement implements BoletaService{
 	@Autowired
 	SocioRepository socioRepository;
 	
-
+	@Autowired
+	BoletaRepository boletaRepository;
+	
+	@Autowired
+	ConsumoService consumoService;
+	
+	@Autowired
+	IngresoService ingresoService;
+	
+	@Autowired
+	HospedajeService hospedajeService;
 	@Override
 	public MessageResponse pagoBoleta(Integer idIngreso) {
 		// TODO Auto-generated method stub
 		Integer numIngreso=null;
 		String msj="";
 		MessageResponse messageResponse = new MessageResponse();
+		Boleta boleta = new Boleta();
 		try {
 
 			if(verificarIngreso(idIngreso)) {
@@ -57,10 +70,14 @@ public class BoletaServiceImplement implements BoletaService{
 
 					numIngreso = idIngreso;
 					msj = "Generar Boleta, solo hay ingreso que se Pago";
+					boleta.setIdboleta(generatedIdBoleta());
+					boleta.setPago(calculoConsumoBoleta(idIngreso)+calculoIngresoBoleta(idIngreso));
 				}else {
 					if(hospedaje.getEstado().getIdestado()==1) {
 						numIngreso = idIngreso;
 						msj = "Generar Boleta, se pago ingreso y hospedaje";
+						boleta.setIdboleta(generatedIdBoleta());
+	          boleta.setPago(calculoConsumoBoleta(idIngreso)+calculoIngresoBoleta(idIngreso)+calculoHospedajeBoleta(idIngreso));
 					}else {
 						numIngreso = idIngreso;
 						msj = "No Generar Boleta, el hospedaje no se pago";
@@ -99,47 +116,123 @@ public class BoletaServiceImplement implements BoletaService{
 	@Override
 	public double calculoIngresoBoleta(Integer idIngreso) {
 		// TODO Auto-generated method stub
-		double sumaTotal=0;
-		List<Consumo> lstConsumo = new ArrayList<Consumo>();
-		lstConsumo = consumoRepository.findAllByPkIdingreso(idIngreso);
-		for(Consumo consumo : lstConsumo) {
-			sumaTotal = sumaTotal + (consumo.getPrecio_venta()*consumo.getCantidad());
-		}
-		return sumaTotal;
+		double sumaIngreso=0;		
+		Ingreso ingreso = ingresoRepository.findById(idIngreso).get();
+		sumaIngreso = ingreso.getCostoingreso()*ingreso.getNuminvitado();
+		return sumaIngreso;
 	}
  
 	@Override
-	public double calculoHospedajeBoleta(Integer idIngreso) {
+	public double calculoHospedajeBoleta(Integer idHospedaje) {
 		// TODO Auto-generated method stub
 		double totalHospedaje = 0;
-		Hospedaje hospedaje =  hospedajeRepository.findByIngresoIdingreso(idIngreso);
+		try {
+		Hospedaje hospedaje =  hospedajeRepository.findById(idHospedaje).get();
 		hospedaje.setFech_salida(new Date());
 		hospedaje.setHora_salida(Utilitario.getActualTime());
-		Integer dias = (int) ((hospedaje.getFech_salida().getTime()-hospedaje.getIngreso().getFech_ingreso().getTime())/86400000);
+		Integer dias = Utilitario.calculoDias(hospedaje.getIngreso().getFech_ingreso(),hospedaje.getFech_salida());
 		Double costo = hospedaje.getBungalow().getPrecio();
 		totalHospedaje = dias*costo;
-		hospedaje.setCostohospedaje(totalHospedaje);
-		
-		EstHospedaje estHospedaje = new EstHospedaje();
-		estHospedaje.setIdestado(1);
-		hospedaje.setEstado(estHospedaje);
-		
-		Bungalow bungalow = bungalowRepository.findById(hospedaje.getBungalow().getIdbungalow()).get();	
-		EstBungalow estBungalow = new EstBungalow();
-		estBungalow.setIdestado(0);
-		bungalow.setEstado(estBungalow);
-		
-		Socio socio = socioRepository.findById(hospedaje.getIngreso().getSocio().getIdsocio()).get();
-		EstSocio estSocio = new EstSocio();
-		estSocio.setIdestado(0);
-		socio.setEstado(estSocio);
-		
-		socioRepository.save(socio);
-		bungalowRepository.save(bungalow);
-		hospedajeRepository.save(hospedaje);
-		
+		}catch(Exception e) {
+		  
+		}
 		return totalHospedaje;
 	}
+
+  @Override
+  public List<BoletaResponse> allBoleta() {
+    // TODO Auto-generated method stub
+    List<BoletaResponse> lstBoletaResponse = new ArrayList<BoletaResponse>();
+    
+    for(Boleta boleta : boletaRepository.findAll()) {
+      Socio socio = socioRepository.findById(boleta.getIngreso().getSocio().getIdsocio()).get();
+      BoletaResponse boletaResponse = new BoletaResponse();
+      boletaResponse.setIdBoleta(boleta.getIdboleta());
+      boletaResponse.setIdIngreso(boleta.getIngreso().getIdingreso());
+      boletaResponse.setFechPago(boleta.getFech_pago());
+      boletaResponse.setSocio(socio.getApellido()+", "+socio.getNombre());
+      boletaResponse.setTotalBoleta(boleta.getPago());
+      lstBoletaResponse.add(boletaResponse);
+    }
+    return lstBoletaResponse;
+  }
+
+  @Override
+  public IngresoBoletaResponse getIngreso(Integer idIngreso) {
+    // TODO Auto-generated method stub
+    Ingreso ingreso = ingresoRepository.findById(idIngreso).get();
+    Socio socio = socioRepository.findById(ingreso.getSocio().getIdsocio()).get();
+    IngresoBoletaResponse ingresoResp = new IngresoBoletaResponse();
+    ingresoResp.setIdIngreso(ingreso.getIdingreso());
+    ingresoResp.setSocio(socio.getApellido()+", "+socio.getNombre());
+    ingresoResp.setNumInvitado(ingreso.getNuminvitado());
+    ingresoResp.setCostoInvitado(25);
+    ingresoResp.setCostoIngreso(ingreso.getNuminvitado()*25);
+    return ingresoResp;
+  }
+
+  @Override
+  public HospedajeBoletaResponse getHospedaje(Integer idIngreso) {
+    // TODO Auto-generated method stub
+    try {
+    HospedajeBoletaResponse hospedajeResp = new HospedajeBoletaResponse();
+    Hospedaje hospedaje = hospedajeRepository.findByIngresoIdingreso(idIngreso);
+    hospedajeResp.setIdHospedaje(hospedaje.getIdhospedaje());
+    hospedajeResp.setIdBungalow(hospedaje.getBungalow().getIdbungalow());
+    hospedajeResp.setFechIngreso(hospedaje.getIngreso().getFech_ingreso());
+    hospedajeResp.setFechSalida(hospedaje.getFech_salida());
+    hospedajeResp.setDias(Utilitario.calculoDias(hospedajeResp.getFechIngreso(),hospedajeResp.getFechSalida()));
+    hospedajeResp.setCostoBungalow(hospedaje.getBungalow().getPrecio());
+    hospedajeResp.setCostoHospedaje(hospedajeResp.getDias()*hospedajeResp.getCostoBungalow());
+    return hospedajeResp;
+    }catch(Exception e) {
+      return null;
+    }
+  }
+
+  @Override
+  public double calculoConsumoBoleta(Integer idIngreso) {
+    // TODO Auto-generated method stub
+    double sumaConsumo = 0;
+    List<Consumo> lstConsumo = new ArrayList<Consumo>();
+
+    lstConsumo = consumoRepository.findAllByPkIdingreso(idIngreso);
+    for(Consumo consumo : lstConsumo) {
+      sumaConsumo = sumaConsumo + (consumo.getPrecio_venta()*consumo.getCantidad());
+    }
+    
+    return sumaConsumo;
+  }
+
+  @Override
+  public BoletaDetalladaResponse getBoletaDetalla(Integer idboleta) {
+       
+      Boleta boleta = boletaRepository.findById(idboleta).get();
+      BoletaDetalladaResponse boletaResponse = new BoletaDetalladaResponse();
+      boletaResponse.setIdBoleta(boleta.getIdboleta());
+      boletaResponse.setFechPago(boleta.getFech_pago());
+      boletaResponse.setTotalBoleta(boleta.getPago());
+      IngresoBoletaResponse ingBolResponse = getIngreso(boleta.getIngreso().getIdingreso());
+      HospedajeBoletaResponse hosBolResponse = getHospedaje(boleta.getIngreso().getIdingreso());
+      boletaResponse.setIngreso(ingBolResponse);
+      boletaResponse.setHospedaje(hosBolResponse);
+      List<ConsumoResponse> lstConsumo = consumoService.allConsumoByIngreso(boleta.getIngreso().getIdingreso());
+      boletaResponse.setConsumos(lstConsumo);
+      boletaResponse.setTotalIngreso(calculoIngresoBoleta(boleta.getIngreso().getIdingreso()));
+      boletaResponse.setTotalConsumo(calculoConsumoBoleta(boleta.getIngreso().getIdingreso()));
+      boletaResponse.setTotalHospedaje(calculoHospedajeBoleta(boleta.getIngreso().getIdingreso()));  
+    
+      return boletaResponse;
+  }
+
+  @Override
+  public Integer generatedIdBoleta() {
+    // TODO Auto-generated method stub
+    Integer idboleta;
+    idboleta=boletaRepository.findLastIdBoleta();
+    if(idboleta==null)idboleta=60000;
+    return idboleta+1;
+  }
 
 	
 	

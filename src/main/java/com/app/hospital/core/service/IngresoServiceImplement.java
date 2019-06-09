@@ -77,7 +77,7 @@ public class IngresoServiceImplement implements IngresoService{
 	@Override
 	public Integer generatedIdIngreso() {
 		// TODO Auto-generated method stub
-		  Integer idingreso;
+		    Integer idingreso;
 	      idingreso=ingresoRepository.findLastIdIngreso();
 	      if(idingreso==null)idingreso=40000;
 	      return idingreso+1;
@@ -121,12 +121,13 @@ public class IngresoServiceImplement implements IngresoService{
 	}
 
 	@Override
-	public void pagarIngreso(Integer idIngreso) {
+	public void pagarIngreso(Integer idIngreso,double monto) {
 		// TODO Auto-generated method stub
 		Ingreso ingreso = ingresoRepository.findById(idIngreso).get();
 		EstIngreso estIngreso = new EstIngreso();
 		estIngreso.setIdestado(1);
 		ingreso.setEstado(estIngreso);
+		ingreso.setCostoingreso(monto);
 		ingresoRepository.save(ingreso);
 	}
 

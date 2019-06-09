@@ -65,7 +65,10 @@ public class BungalowServiceImplement implements BungalowService{
 	@Override
 	public Integer generatedIdBungalow() {
 		// TODO Auto-generated method stub
-		return bungalowRepository.findLastIdBungalow()+1;
+	  Integer idbungalow;
+	  idbungalow=bungalowRepository.findLastIdBungalow();
+    if(idbungalow==null)idbungalow=30000;
+    return idbungalow+1;
 	}
 
 	

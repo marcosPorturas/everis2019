@@ -11,7 +11,7 @@ public interface IngresoService {
 	Integer generatedIdIngreso();
 	Ingreso addIngreso(IngresoRequest ingresoRequest);
 	IngresoResponse findIngreso(Integer idIngreso);
-	void pagarIngreso(Integer idIngreso);
+	void pagarIngreso(Integer idIngreso,double monto);
 	List<IngresoResponse> allIngreso();
 	List<IngresoResponse> allIngresoByEstado(Integer idIngreso);
 	

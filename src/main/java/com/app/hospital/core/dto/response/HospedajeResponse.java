@@ -20,6 +20,7 @@ public class HospedajeResponse {
 	private Date fechIngreso;
 	private Date fechSalida;
 	private Double costoHospedaje;
+	private String estado;
 
 	
 }

@@ -8,10 +8,11 @@ import lombok.Setter;
 @Getter
 @Setter
 public class BoletaResponse {
-	
-	private Integer idBoleta;
-	private Date fechPago;
-	private Integer idIngreso;
-	private Double totalBoleta;
 
+  private Integer idBoleta;
+  private Date fechPago;
+  private Integer idIngreso;
+  private String socio;
+  private double totalBoleta;
+  
 }

@@ -14,4 +14,10 @@ public class Utilitario {
 		 return "".concat(dateFormat.format(date));
 	}
 	
+	public static Integer calculoDias(Date fechInicio,Date fechFin) {
+	  Integer dias=0;
+	  dias = (int) ((fechFin.getTime()-fechInicio.getTime())/86400000);
+	  return dias;
+	}
+	
 }

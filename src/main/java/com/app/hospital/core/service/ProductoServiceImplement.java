@@ -46,7 +46,10 @@ public class ProductoServiceImplement implements ProductoService{
 	@Override
 	public Integer generatedIdProducto() {
 		// TODO Auto-generated method stub
-		return productoRepository.findLastIdProducto()+1;
+	  Integer idproducto;
+	  idproducto=productoRepository.findLastIdProducto();
+    if(idproducto==null)idproducto=20000;
+    return idproducto+1;
 	}
 	
 	

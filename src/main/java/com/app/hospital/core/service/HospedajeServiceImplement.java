@@ -20,6 +20,7 @@ import com.app.hospital.core.reposiroty.BungalowRepository;
 import com.app.hospital.core.reposiroty.HospedajeRepository;
 import com.app.hospital.core.reposiroty.IngresoRepository;
 import com.app.hospital.core.reposiroty.SocioRepository;
+import com.app.hospital.core.util.Utilitario;
 
 
 @Service
@@ -88,9 +89,14 @@ public class HospedajeServiceImplement implements HospedajeService{
 		hospedajeResp.setSocio(socio.getApellido()+", "+socio.getNombre());
 		hospedajeResp.setIdBungalow(hospedaje.getBungalow().getIdbungalow());
 		hospedajeResp.setIdIngreso(hospedaje.getIngreso().getIdingreso());
-		hospedajeResp.setFechSalida(hospedaje.getFech_salida());
+		if(hospedaje.getFech_salida()==null) {
+		  hospedajeResp.setFechSalida(new Date());
+		}else {
+		  hospedajeResp.setFechSalida(hospedaje.getFech_salida());
+		}
 		hospedajeResp.setFechIngreso(hospedaje.getIngreso().getFech_ingreso());
 		hospedajeResp.setCostoHospedaje(hospedaje.getCostohospedaje());
+		hospedajeResp.setEstado(hospedaje.getEstado().getNombre());
 		return hospedajeResp; 
 	}
 
@@ -109,7 +115,7 @@ public class HospedajeServiceImplement implements HospedajeService{
 			hospedajeResp.setFechIngreso(hospedaje.getIngreso().getFech_ingreso());
 			if(idEstado == 0) {
 				hospedajeResp.setFechSalida(new Date());
-				Integer dias = (int) ((hospedajeResp.getFechSalida().getTime()-hospedajeResp.getFechIngreso().getTime())/86400000);
+				Integer dias = Utilitario.calculoDias(hospedaje.getIngreso().getFech_ingreso(),hospedaje.getFech_salida());
 				Double costo = hospedaje.getBungalow().getPrecio();
 				hospedajeResp.setCostoHospedaje(dias*costo);			
 			}else {
@@ -123,7 +129,7 @@ public class HospedajeServiceImplement implements HospedajeService{
 
 
 	@Override
-	public void pagarHospedaje(Integer idHospedaje) {
+	public void pagarHospedaje(Integer idHospedaje,double monto) {
 		// TODO Auto-generated method stub
 		Hospedaje hospedaje = hospedajeRepository.findById(idHospedaje).get();
 		Socio socio = socioRepository.findById(hospedaje.getIngreso().getSocio().getIdsocio()).get();
@@ -136,8 +142,15 @@ public class HospedajeServiceImplement implements HospedajeService{
 		EstHospedaje estHospedaje = new EstHospedaje();
 		estHospedaje.setIdestado(1);
 		hospedaje.setEstado(estHospedaje);
+		hospedaje.setCostohospedaje(monto);
 		
 		hospedajeRepository.save(hospedaje);
+
+	  Bungalow bungalow = bungalowRepository.findById(hospedaje.getBungalow().getIdbungalow()).get(); 
+    EstBungalow estBungalow = new EstBungalow();
+    estBungalow.setIdestado(0);
+    bungalow.setEstado(estBungalow);
+    bungalowRepository.save(bungalow);
 		
 	}
 
