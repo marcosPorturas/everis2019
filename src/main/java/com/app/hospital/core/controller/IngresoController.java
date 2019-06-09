@@ -24,7 +24,7 @@ public class IngresoController {
 	
 	@GetMapping
 	public List<IngresoResponse> allIngreso() {
-		return ingresoService.allIngreso();
+		return ingresoService.allIngreso(); 
 	}
 	
 	@GetMapping("/{idingreso}/consumos")
